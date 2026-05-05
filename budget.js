@@ -1,4 +1,7 @@
-//SELECT ELEMENTS
+// 删除 budget.js 开头的 CONFIG 定义，因为现在从 config.js 加载
+// 如果 budget.js 中有 CONFIG 定义，请删除它
+
+// SELECT ELEMENTS
 const balanceEl = document.querySelector(".balance .value");
 const incomeTotalEl = document.querySelector(".income-total");
 const outcomeTotalEl = document.querySelector(".outcome-total");
@@ -9,7 +12,7 @@ const incomeList = document.querySelector("#income .list");
 const expenseList = document.querySelector("#expense .list");
 const allList = document.querySelector("#all .list");
 
-//SELECT BUTTONS
+// SELECT BUTTONS
 const expenseBtn = document.querySelector(".first-tab");
 const incomeBtn = document.querySelector(".second-tab");
 const allBtn = document.querySelector(".third-tab");
@@ -32,7 +35,7 @@ const DELETE = "delete",
   EDIT = "edit";
 
 // LOOK IF THERE IS DATA IN LOCAL STORAGE
-ENTRY_LIST = JSON.parse(localStorage.getItem("entry_list")) || [];
+ENTRY_LIST = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || [];
 updateUI();
 
 //EVENT LISTENERS
@@ -126,12 +129,12 @@ function updateUI() {
   outcome = calculateTotal("expense", ENTRY_LIST);
   balance = Math.abs(calculateBalance(income, outcome));
 
-  let sign = income >= outcome ? "$" : "-$";
+  let sign = income >= outcome ? CONFIG.CURRENCY_SIGN : `-${CONFIG.CURRENCY_SIGN}`;
 
   //UPDATE UI
   balanceEl.innerHTML = `<small>${sign}</small>${balance}`;
-  outcomeTotalEl.innerHTML = `<small>$</small>${outcome}`;
-  incomeTotalEl.innerHTML = `<small>$</small>${income}`;
+  outcomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${outcome}`;
+  incomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${income}`;
 
   clearElement([expenseList, incomeList, allList]);
 
@@ -144,12 +147,12 @@ function updateUI() {
     showEntry(allList, entry.type, entry.title, entry.amount, index);
   });
   updateChart(income, outcome);
-  localStorage.setItem("entry_list", JSON.stringify(ENTRY_LIST));
+  localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(ENTRY_LIST));
 }
 
 function showEntry(list, type, title, amount, id) {
   const entry = `<li id="${id}" class="${type}">
-                    <div class="entry">${title} : $${amount}</div>
+                    <div class="entry">${title} : ${CONFIG.CURRENCY_SIGN}${amount}</div>
                     <div id="edit"></div>
                     <div id="delete"></div>
                   </li>`;

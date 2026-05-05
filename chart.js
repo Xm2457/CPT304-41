@@ -1,10 +1,11 @@
+// =========== 图表相关 =============
 // SELECT CHART ELEMENT
 const chartEl = document.querySelector(".chart");
 
 // CREATE CANVAS ELEMENT
 const canvas = document.createElement("canvas");
-canvas.width = 50;
-canvas.height = 50;
+canvas.width = CONFIG.CHART.WIDTH;
+canvas.height = CONFIG.CHART.HEIGHT;
 
 chartEl.appendChild(canvas);
 
@@ -12,10 +13,10 @@ chartEl.appendChild(canvas);
 const ctx = canvas.getContext("2d");
 
 // CHANGE LINE WIDTH
-ctx.lineWidth = 8;
+ctx.lineWidth = CONFIG.CHART.LINE_WIDTH;
 
 // CIRCLE RADIUS
-const R = 20;
+const R = CONFIG.CHART.RADIUS;
 
 function drawCircle(color, ratio, anticlockwise) {
   ctx.strokeStyle = color;
@@ -35,7 +36,10 @@ function updateChart(income, outcome) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   let ratio = income / (outcome + income);
+  
+  // 处理除零情况
+  if (isNaN(ratio)) ratio = 0;
 
-  drawCircle("#FFF", -ratio, true);
-  drawCircle("#F0624D", 1 - ratio, false);
+  drawCircle(CONFIG.COLORS.income, -ratio, true);
+  drawCircle(CONFIG.COLORS.expense, 1 - ratio, false);
 }
