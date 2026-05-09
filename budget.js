@@ -59,15 +59,42 @@ allBtn.addEventListener("click", function () {
 });
 
 addExpense.addEventListener("click", function () {
-  // CHECK IF ONE OF THE INPUT IS EMPTY => EXIT
-  if (!expenseTitle.value || !expenseAmount.value) return;
+
+  const title = expenseTitle.value.trim();
+  const amount = Number(expenseAmount.value);
+
+  // Title validation
+  if (title.length < 2 || title.length > 50) {
+    alert("Title must be between 2 and 50 characters.");
+    return;
+  }
+
+  // Prevent dangerous HTML/script input
+  const dangerousPattern = /<script>|<\/script>|<.*?>/gi;
+
+  if (dangerousPattern.test(title)) {
+    alert("Invalid characters detected.");
+    return;
+  }
+
+  // Amount validation
+  if (
+    isNaN(amount) ||
+    !isFinite(amount) ||
+    amount <= 0 ||
+    amount > 1000000
+  ) {
+    alert("Please enter a valid amount.");
+    return;
+  }
 
   // ADD INPUTs TO ENTRY_LIST
   let expense = {
     type: "expense",
-    title: expenseTitle.value,
-    amount: +expenseAmount.value,
+    title: title,
+    amount: amount,
   };
+
   ENTRY_LIST.push(expense);
 
   updateUI();
@@ -75,15 +102,42 @@ addExpense.addEventListener("click", function () {
 });
 
 addIncome.addEventListener("click", function () {
-  // CHECK IF ONE OF THE INPUT IS EMPTY => EXIT
-  if (!incomeTitle.value || !incomeAmount.value) return;
+
+  const title = incomeTitle.value.trim();
+  const amount = Number(incomeAmount.value);
+
+  // Title validation
+  if (title.length < 2 || title.length > 50) {
+    alert("Title must be between 2 and 50 characters.");
+    return;
+  }
+
+  // Prevent dangerous HTML/script input
+  const dangerousPattern = /<script>|<\/script>|<.*?>/gi;
+
+  if (dangerousPattern.test(title)) {
+    alert("Invalid characters detected.");
+    return;
+  }
+
+  // Amount validation
+  if (
+    isNaN(amount) ||
+    !isFinite(amount) ||
+    amount <= 0 ||
+    amount > 1000000
+  ) {
+    alert("Please enter a valid amount.");
+    return;
+  }
 
   // ADD INPUTs TO ENTRY_LIST
   let income = {
     type: "income",
-    title: incomeTitle.value,
-    amount: +incomeAmount.value,
+    title: title,
+    amount: amount,
   };
+
   ENTRY_LIST.push(income);
 
   updateUI();
@@ -151,11 +205,18 @@ function updateUI() {
 }
 
 function showEntry(list, type, title, amount, id) {
+
+  // Sanitize user input
+  const safeTitle = title
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
   const entry = `<li id="${id}" class="${type}">
-                    <div class="entry">${title} : ${CONFIG.CURRENCY_SIGN}${amount}</div>
+                    <div class="entry">${safeTitle} : $${amount}</div>
                     <div id="edit"></div>
                     <div id="delete"></div>
                   </li>`;
+
   const position = "afterbegin";
   list.insertAdjacentHTML(position, entry);
 }
