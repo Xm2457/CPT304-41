@@ -6,7 +6,7 @@ Welcome to the Budget App! This project is the result of following a comprehensi
 You can check out the live demo of the Budget App here.
 **Online Demo of Project :**
 
-<a href="https://smircodes.github.io/Budget-app/" title="Budget-App">Link to Budget App</a>
+<a href="https://xm2457.github.io/CPT304-7/" title="Budget-App">Link to Budget App</a>
 
 ## Features
 
