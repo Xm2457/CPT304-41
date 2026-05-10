@@ -1,22 +1,22 @@
-// chart.js - 兼顾健壮性和功能性
+// chart.js - Balancing robustness and functionality
 
-// 选择图表容器元素
+// Select chart container elements
 const chartEl = document.querySelector(".chart");
 
 let canvas = null;
 let ctx = null;
 let R = 0;
 
-// 确保 CONFIG 配置和容器存在
+// Ensure that the CONFIG configuration and container exist
 if (chartEl && typeof CONFIG !== "undefined" && CONFIG.CHART) {
-  // 创建 Canvas 元素
+  // Create Canvas element
   canvas = document.createElement("canvas");
   canvas.width = CONFIG.CHART.WIDTH;
   canvas.height = CONFIG.CHART.HEIGHT;
 
   chartEl.appendChild(canvas);
 
-  // 获取绘图上下文
+  // Get drawing context
   ctx = canvas.getContext("2d");
 
   if (ctx) {
@@ -30,10 +30,10 @@ if (chartEl && typeof CONFIG !== "undefined" && CONFIG.CHART) {
 }
 
 /**
- * 绘制圆弧函数
- * @param {string} color - 画笔颜色
- * @param {number} ratio - 绘制的角度比例（0~1）
- * @param {boolean} anticlockwise - 是否逆时针绘制
+ * Draw a circular arc function
+ * @param {string} color - brush color
+ * @param {number} ratio - Draw angle ratio（0~1）
+ * @param {boolean} anticlockwise - Is it drawn counterclockwise
  */
 function drawCircle(color, ratio, anticlockwise) {
   if (!ctx || !canvas) return;
@@ -52,9 +52,9 @@ function drawCircle(color, ratio, anticlockwise) {
 }
 
 /**
- * 更新图表函数
- * @param {number} income - 收入金额
- * @param {number} outcome - 支出金额
+ * Update chart function
+ * @param {number} income - income amount
+ * @param {number} outcome - expense amount
  */
 function updateChart(income, outcome) {
   if (!ctx || !canvas) return;
@@ -66,12 +66,12 @@ function updateChart(income, outcome) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // 避免除以0导致NaN
+  // Avoid dividing by 0 to avoid NaN
   const ratio = total > 0 ? safeIncome / total : 0;
 
-  // 绘制收入部分（逆时针）
+  // Draw income section (counterclockwise)
   drawCircle(CONFIG.COLORS.income, -ratio, true);
 
-  // 绘制支出部分（顺时针）
+  // Draw the expenditure section (clockwise)
   drawCircle(CONFIG.COLORS.expense, 1 - ratio, false);
 }

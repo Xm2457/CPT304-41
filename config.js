@@ -1,4 +1,4 @@
-// =========== 配置集中管理 =============
+// =========== Centralized configuration management =============
 const CONFIG = {
   STORAGE_KEY: "entry_list",
   CURRENCY_SIGN: "$",
