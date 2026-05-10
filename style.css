@@ -457,8 +457,9 @@ input[type="number"] {
 
 .cookie-banner p {
   margin: 0;
-  max-width: 70%;
+  max-width: 50%;
   line-height: 1.4;
+  word-break: break-all;
 }
 
 .cookie-banner p a {
@@ -468,6 +469,7 @@ input[type="number"] {
 
 .cookie-banner .cookie-buttons button {
   margin-left: 10px;
+  margin-right: 30px;
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
