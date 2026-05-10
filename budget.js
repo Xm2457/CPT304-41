@@ -363,3 +363,29 @@ function active(element) {
 function inactive(elements) {
   elements.forEach(el => el.classList.remove("focus"));
 }
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const cookieBanner = document.getElementById("cookie-banner");
+  const acceptBtn = document.getElementById("accept-cookie");
+  const rejectBtn = document.getElementById("reject-cookie");
+
+  if (!cookieBanner || !acceptBtn || !rejectBtn) return;
+
+  // 如果用户未同意过，显示banner
+  if (!localStorage.getItem("cookieConsent")) {
+    cookieBanner.classList.remove("hide");
+  } else {
+    cookieBanner.classList.add("hide");
+  }
+
+  acceptBtn.addEventListener("click", () => {
+    localStorage.setItem("cookieConsent", "accepted");
+    cookieBanner.classList.add("hide");
+  });
+
+  rejectBtn.addEventListener("click", () => {
+    localStorage.setItem("cookieConsent", "rejected");
+    cookieBanner.classList.add("hide");
+  });
+});
