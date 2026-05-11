@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "codecov": "^3.8.2",
     "jest": "^30.4.2"
   },
   "scripts": {
