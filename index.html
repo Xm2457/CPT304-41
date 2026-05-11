@@ -77,11 +77,23 @@
         </div>
       </div>
     </div>
-    <!-- 关键修改：先加载 config.js，确保 CONFIG 定义 -->
+    
+   <!-- Cookie Banner -->
+<div id="cookie-banner" class="cookie-banner hide">
+  <p>
+    We use local storage to save your budget data and preferences. By clicking
+    <strong>"Accept All"</strong>, you consent to our use of essential storage.
+    Read our <a href="privacy.html" target="_blank">Privacy Policy</a>.
+  </p>
+  <div class="cookie-buttons">
+    <button id="reject-cookie">Reject</button>
+    <button id="accept-cookie" class="accept-btn">Accept All</button>
+  </div>
+</div>
+
+    
     <script src="./config.js"></script>
-    <!-- 然后加载 chart.js，它依赖 CONFIG -->
     <script src="./chart.js"></script>
-    <!-- 最后加载 budget.js，它依赖 CONFIG 和 chart.js 的函数 -->
     <script src="./budget.js"></script>
-  </body>
+</body>
 </html>

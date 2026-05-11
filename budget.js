@@ -1,7 +1,28 @@
-// 删除 budget.js 开头的 CONFIG 定义，因为现在从 config.js 加载
-// 如果 budget.js 中有 CONFIG 定义，请删除它
+document.addEventListener("DOMContentLoaded", () => {
+  const cookieBanner = document.getElementById("cookie-banner");
+  const acceptBtn = document.getElementById("accept-cookie");
+  const rejectBtn = document.getElementById("reject-cookie");
 
-// SELECT ELEMENTS
+  if (!cookieBanner || !acceptBtn || !rejectBtn) return;
+
+  // 如果用户未同意过，显示banner
+  if (!localStorage.getItem("cookieConsent")) {
+    cookieBanner.classList.remove("hide");
+  } else {
+    cookieBanner.classList.add("hide");
+  }
+
+  acceptBtn.addEventListener("click", () => {
+    localStorage.setItem("cookieConsent", "accepted");
+    cookieBanner.classList.add("hide");
+  });
+
+  rejectBtn.addEventListener("click", () => {
+    localStorage.setItem("cookieConsent", "rejected");
+    cookieBanner.classList.add("hide");
+  });
+});
+//SELECT ELEMENTS
 const balanceEl = document.querySelector(".balance .value");
 const incomeTotalEl = document.querySelector(".income-total");
 const outcomeTotalEl = document.querySelector(".outcome-total");
@@ -12,7 +33,7 @@ const incomeList = document.querySelector("#income .list");
 const expenseList = document.querySelector("#expense .list");
 const allList = document.querySelector("#all .list");
 
-// SELECT BUTTONS
+//SELECT BUTTONS
 const expenseBtn = document.querySelector(".first-tab");
 const incomeBtn = document.querySelector(".second-tab");
 const allBtn = document.querySelector(".third-tab");
@@ -35,7 +56,7 @@ const DELETE = "delete",
   EDIT = "edit";
 
 // LOOK IF THERE IS DATA IN LOCAL STORAGE
-ENTRY_LIST = JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || [];
+ENTRY_LIST = JSON.parse(localStorage.getItem("entry_list")) || [];
 updateUI();
 
 //EVENT LISTENERS
@@ -59,8 +80,18 @@ allBtn.addEventListener("click", function () {
 });
 
 addExpense.addEventListener("click", function () {
+  // 移除之前的错误样式（重置状态）
+  expenseTitle.classList.remove("input-error");
+  expenseAmount.classList.remove("input-error");
+
   // CHECK IF ONE OF THE INPUT IS EMPTY => EXIT
-  if (!expenseTitle.value || !expenseAmount.value) return;
+  if (!expenseTitle.value || !expenseAmount.value) {
+    if (!expenseTitle.value) expenseTitle.classList.add("input-error");
+    if (!expenseAmount.value) expenseAmount.classList.add("input-error");
+    
+    alert("Please enter both a title and an amount for the expense.");
+    return;
+  }
 
   // ADD INPUTs TO ENTRY_LIST
   let expense = {
@@ -75,8 +106,18 @@ addExpense.addEventListener("click", function () {
 });
 
 addIncome.addEventListener("click", function () {
+  // 移除之前的错误样式（重置状态）
+  incomeTitle.classList.remove("input-error");
+  incomeAmount.classList.remove("input-error");
+
   // CHECK IF ONE OF THE INPUT IS EMPTY => EXIT
-  if (!incomeTitle.value || !incomeAmount.value) return;
+  if (!incomeTitle.value || !incomeAmount.value) {
+    if (!incomeTitle.value) incomeTitle.classList.add("input-error");
+    if (!incomeAmount.value) incomeAmount.classList.add("input-error");
+    
+    alert("Please enter both a title and an amount for the income.");
+    return;
+  }
 
   // ADD INPUTs TO ENTRY_LIST
   let income = {
@@ -129,12 +170,12 @@ function updateUI() {
   outcome = calculateTotal("expense", ENTRY_LIST);
   balance = Math.abs(calculateBalance(income, outcome));
 
-  let sign = income >= outcome ? CONFIG.CURRENCY_SIGN : `-${CONFIG.CURRENCY_SIGN}`;
+  let sign = income >= outcome ? "$" : "-$";
 
   //UPDATE UI
   balanceEl.innerHTML = `<small>${sign}</small>${balance}`;
-  outcomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${outcome}`;
-  incomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${income}`;
+  outcomeTotalEl.innerHTML = `<small>$</small>${outcome}`;
+  incomeTotalEl.innerHTML = `<small>$</small>${income}`;
 
   clearElement([expenseList, incomeList, allList]);
 
@@ -147,12 +188,12 @@ function updateUI() {
     showEntry(allList, entry.type, entry.title, entry.amount, index);
   });
   updateChart(income, outcome);
-  localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(ENTRY_LIST));
+  localStorage.setItem("entry_list", JSON.stringify(ENTRY_LIST));
 }
 
 function showEntry(list, type, title, amount, id) {
   const entry = `<li id="${id}" class="${type}">
-                    <div class="entry">${title} : ${CONFIG.CURRENCY_SIGN}${amount}</div>
+                    <div class="entry">${title} : $${amount}</div>
                     <div id="edit"></div>
                     <div id="delete"></div>
                   </li>`;
