@@ -1,4 +1,4 @@
-// =========== Centralized configuration management =============
+// config.js
 const CONFIG = {
   STORAGE_KEY: "entry_list",
   CURRENCY_SIGN: "$",
@@ -13,3 +13,5 @@ const CONFIG = {
     LINE_WIDTH: 8
   }
 };
+
+module.exports = CONFIG; 
