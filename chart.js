@@ -1,40 +1,35 @@
-// chart.js - Balancing robustness and functionality
+// chart.js
+// Error Handling Prevent editing non-existent data
 
-// Select chart container elements
+// SELECT CHART ELEMENT
 const chartEl = document.querySelector(".chart");
 
 let canvas = null;
 let ctx = null;
 let R = 0;
 
-// Ensure that the CONFIG configuration and container exist
 if (chartEl && typeof CONFIG !== "undefined" && CONFIG.CHART) {
-  // Create Canvas element
+  // CREATE CANVAS ELEMENT
   canvas = document.createElement("canvas");
   canvas.width = CONFIG.CHART.WIDTH;
   canvas.height = CONFIG.CHART.HEIGHT;
 
   chartEl.appendChild(canvas);
 
-  // Get drawing context
+  // TO DRAW ON CANVAS, WE NEED TO GET CONTEXT OF CANVAS
   ctx = canvas.getContext("2d");
 
   if (ctx) {
+    // CHANGE LINE WIDTH
     ctx.lineWidth = CONFIG.CHART.LINE_WIDTH;
+
+    // CIRCLE RADIUS
     R = CONFIG.CHART.RADIUS;
-  } else {
-    console.warn("Failed to get 2D context for canvas.");
   }
 } else {
-  console.warn("Chart container or CONFIG.CHART not found.");
+  console.warn("Chart container or chart config was not found.");
 }
 
-/**
- * Draw a circular arc function
- * @param {string} color - brush color
- * @param {number} ratio - Draw angle ratio（0~1）
- * @param {boolean} anticlockwise - Is it drawn counterclockwise
- */
 function drawCircle(color, ratio, anticlockwise) {
   if (!ctx || !canvas) return;
 
@@ -51,27 +46,18 @@ function drawCircle(color, ratio, anticlockwise) {
   ctx.stroke();
 }
 
-/**
- * Update chart function
- * @param {number} income - income amount
- * @param {number} outcome - expense amount
- */
 function updateChart(income, outcome) {
   if (!ctx || !canvas) return;
 
   const safeIncome = Number.isFinite(Number(income)) ? Number(income) : 0;
   const safeOutcome = Number.isFinite(Number(outcome)) ? Number(outcome) : 0;
-
   const total = safeIncome + safeOutcome;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Avoid dividing by 0 to avoid NaN
+
   const ratio = total > 0 ? safeIncome / total : 0;
 
-  // Draw income section (counterclockwise)
   drawCircle(CONFIG.COLORS.income, -ratio, true);
-
-  // Draw the expenditure section (clockwise)
   drawCircle(CONFIG.COLORS.expense, 1 - ratio, false);
 }
