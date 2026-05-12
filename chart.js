@@ -1,18 +1,5 @@
 // chart.js
-const CONFIG = {
-  STORAGE_KEY: "entry_list",
-  CURRENCY_SIGN: "$",
-  COLORS: {
-    income: "#FFFFFF",
-    expense: "#F0624D"
-  },
-  CHART: {
-    WIDTH: 50,
-    HEIGHT: 50,
-    RADIUS: 20,
-    LINE_WIDTH: 8
-  }
-};
+// Balancing robustness and functionality
 
 const chartEl = document.querySelector(".chart");
 
@@ -20,7 +7,7 @@ let canvas = null;
 let ctx = null;
 let R = 0;
 
-if (chartEl && CONFIG && CONFIG.CHART) {
+if (chartEl && typeof CONFIG !== "undefined" && CONFIG.CHART) {
   canvas = document.createElement("canvas");
   canvas.width = CONFIG.CHART.WIDTH;
   canvas.height = CONFIG.CHART.HEIGHT;
@@ -60,7 +47,6 @@ function updateChart(income, outcome) {
 
   const safeIncome = Number.isFinite(Number(income)) ? Number(income) : 0;
   const safeOutcome = Number.isFinite(Number(outcome)) ? Number(outcome) : 0;
-
   const total = safeIncome + safeOutcome;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -70,8 +56,3 @@ function updateChart(income, outcome) {
   drawCircle(CONFIG.COLORS.income, -ratio, true);
   drawCircle(CONFIG.COLORS.expense, 1 - ratio, false);
 }
-
-module.exports = {
-  drawCircle,
-  updateChart,
-};

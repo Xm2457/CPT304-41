@@ -1,19 +1,249 @@
 // budget.js
+// Depends on CONFIG from config.js and t()/i18n/initI18n() from i18n.js.
+// Please ensure config.js and i18n.js are loaded before this file.
 
-let balanceEl, incomeTotalEl, outcomeTotalEl;
-let incomeEl, expenseEl, allEl;
-let incomeList, expenseList, allList;
-let expenseBtn, incomeBtn, allBtn;
-let addExpense, expenseTitle, expenseAmount;
-let addIncome, incomeTitle, incomeAmount;
+// =========================
+// SELECT ELEMENTS
+// =========================
+const balanceEl = document.querySelector(".balance .value");
+const incomeTotalEl = document.querySelector(".income-total");
+const outcomeTotalEl = document.querySelector(".outcome-total");
+const incomeEl = document.querySelector("#income");
+const expenseEl = document.querySelector("#expense");
+const allEl = document.querySelector("#all");
+const incomeList = document.querySelector("#income .list");
+const expenseList = document.querySelector("#expense .list");
+const allList = document.querySelector("#all .list");
 
+// SELECT BUTTONS
+const expenseBtn = document.querySelector(".first-tab");
+const incomeBtn = document.querySelector(".second-tab");
+const allBtn = document.querySelector(".third-tab");
+
+// INPUT BUTTONS AND INPUTS
+const addExpense = document.querySelector(".add-expense");
+const expenseTitle = document.getElementById("expense-title-input");
+const expenseAmount = document.getElementById("expense-amount-input");
+
+const addIncome = document.querySelector(".add-income");
+const incomeTitle = document.getElementById("income-title-input");
+const incomeAmount = document.getElementById("income-amount-input");
+
+// =========================
+// CONSTANTS
+// =========================
 const DELETE = "delete";
 const EDIT = "edit";
 
-let ENTRY_LIST = [];
-let balance = 0, income = 0, outcome = 0;
+// =========================
+// VARIABLES
+// =========================
+let ENTRY_LIST = loadEntries();
+let balance = 0;
+let income = 0;
+let outcome = 0;
 
-// ========== PURE FUNCTIONS ==========
+// =========================
+// INITIALIZATION
+// =========================
+initI18n();
+updateUI();
+initCookieBanner();
+initTabSwitching();
+
+window.addEventListener("languagechange", () => {
+  updateUI();
+});
+
+// =========================
+// EVENT LISTENERS
+// =========================
+
+addExpense.addEventListener("click", () => {
+  const expense = getValidatedEntry("expense", expenseTitle, expenseAmount);
+  if (!expense) return;
+
+  ENTRY_LIST.push(expense);
+  updateUI();
+  clearInput([expenseTitle, expenseAmount]);
+});
+
+addIncome.addEventListener("click", () => {
+  const income = getValidatedEntry("income", incomeTitle, incomeAmount);
+  if (!income) return;
+
+  ENTRY_LIST.push(income);
+  updateUI();
+  clearInput([incomeTitle, incomeAmount]);
+});
+
+incomeList.addEventListener("click", deleteOrEdit);
+expenseList.addEventListener("click", deleteOrEdit);
+allList.addEventListener("click", deleteOrEdit);
+
+// =========================
+// FUNCTION DEFINITIONS
+// =========================
+
+function initTabSwitching() {
+  expenseBtn.addEventListener("click", () => {
+    show(expenseEl);
+    hide([incomeEl, allEl]);
+    active(expenseBtn);
+    inactive([incomeBtn, allBtn]);
+  });
+
+  incomeBtn.addEventListener("click", () => {
+    show(incomeEl);
+    hide([expenseEl, allEl]);
+    active(incomeBtn);
+    inactive([expenseBtn, allBtn]);
+  });
+
+  allBtn.addEventListener("click", () => {
+    show(allEl);
+    hide([incomeEl, expenseEl]);
+    active(allBtn);
+    inactive([incomeBtn, expenseBtn]);
+  });
+}
+
+function deleteOrEdit(event) {
+  const targetBtn = event.target;
+  const entryLi = targetBtn.closest("li");
+
+  if (!entryLi) return;
+
+  if (targetBtn.id === EDIT) {
+    editEntry(entryLi);
+  } else if (targetBtn.id === DELETE) {
+    deleteEntry(entryLi);
+  }
+}
+
+function deleteEntry(entryLi) {
+  const index = Number(entryLi.id);
+
+  if (!Number.isInteger(index) || index < 0 || index >= ENTRY_LIST.length) {
+    console.warn("Invalid entry index for deletion:", index);
+    return;
+  }
+
+  ENTRY_LIST.splice(index, 1);
+  updateUI();
+}
+
+function editEntry(entryLi) {
+  const index = Number(entryLi.id);
+
+  if (!Number.isInteger(index) || index < 0 || index >= ENTRY_LIST.length) {
+    console.warn("Invalid entry index for editing:", index);
+    return;
+  }
+
+  const entry = ENTRY_LIST[index];
+
+  if (entry.type === "income") {
+    incomeTitle.value = entry.title;
+    incomeAmount.value = entry.amount;
+  } else if (entry.type === "expense") {
+    expenseTitle.value = entry.title;
+    expenseAmount.value = entry.amount;
+  }
+
+  deleteEntry(entryLi);
+}
+
+function updateUI() {
+  income = calculateTotal("income", ENTRY_LIST);
+  outcome = calculateTotal("expense", ENTRY_LIST);
+  balance = calculateBalance(income, outcome);
+
+  const sign = balance >= 0 ? CONFIG.CURRENCY_SIGN : `-${CONFIG.CURRENCY_SIGN}`;
+
+  balanceEl.innerHTML = `<small>${sign}</small>${formatAmount(Math.abs(balance))}`;
+  outcomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${formatAmount(outcome)}`;
+  incomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${formatAmount(income)}`;
+
+  clearElement([expenseList, incomeList, allList]);
+
+  ENTRY_LIST.forEach((entry, index) => {
+    if (entry.type === "expense") {
+      showEntry(expenseList, entry.type, entry.title, entry.amount, index);
+    } else if (entry.type === "income") {
+      showEntry(incomeList, entry.type, entry.title, entry.amount, index);
+    }
+
+    showEntry(allList, entry.type, entry.title, entry.amount, index);
+  });
+
+  if (typeof updateChart === "function") {
+    updateChart(income, outcome);
+  }
+
+  saveEntries();
+}
+
+function showEntry(list, type, title, amount, id) {
+  const entry = document.createElement("li");
+  entry.id = id;
+  entry.className = type;
+
+  const entryText = document.createElement("div");
+  entryText.className = "entry";
+  entryText.textContent = `${title} : ${CONFIG.CURRENCY_SIGN}${formatAmount(amount)}`;
+
+  const editBtn = document.createElement("div");
+  editBtn.id = EDIT;
+  editBtn.title = t("entry.edit");
+
+  const deleteBtn = document.createElement("div");
+  deleteBtn.id = DELETE;
+  deleteBtn.title = t("entry.delete");
+
+  entry.append(entryText, editBtn, deleteBtn);
+  list.prepend(entry);
+}
+
+function getValidatedEntry(type, titleInput, amountInput) {
+  const title = titleInput.value.trim();
+  const amount = Number(amountInput.value);
+
+  if (title.length < 2 || title.length > 50) {
+    alert(t("error.titleLength"));
+    return null;
+  }
+
+  const dangerousPattern = /<script|<\/script>|<.*?>/gi;
+  if (dangerousPattern.test(title)) {
+    alert(t("error.invalidTitle"));
+    return null;
+  }
+
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
+    alert(t("error.amountRange"));
+    return null;
+  }
+
+  return {
+    type,
+    title,
+    amount
+  };
+}
+
+function clearInput(inputs) {
+  inputs.forEach(input => {
+    input.value = "";
+    input.setCustomValidity("");
+  });
+}
+
+function clearElement(elements) {
+  elements.forEach(element => {
+    element.innerHTML = "";
+  });
+}
 
 function calculateTotal(type, list) {
   return list.reduce((sum, entry) => (entry.type === type ? sum + entry.amount : sum), 0);
@@ -27,289 +257,18 @@ function formatAmount(amount) {
   return Number(amount).toFixed(2);
 }
 
-function getValidatedEntry(type, titleInput, amountInput) {
-  const title = titleInput.value.trim();
-  const amount = Number(amountInput.value);
-
-  if (title.length < 2 || title.length > 50) {
-    alert("Title must be between 2 and 50 characters.");
-    return null;
-  }
-
-  const dangerousPattern = /[<>]|<.*?>/gi;
-  if (dangerousPattern.test(title)) {
-    alert("Invalid characters detected in title.");
-    return null;
-  }
-
-  if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
-    alert("Please enter a valid amount between 0 and 1,000,000.");
-    return null;
-  }
-
-  return {
-    type,
-    title,
-    amount,
-  };
-}
-
-function clearInput(inputs) {
-  inputs.forEach(input => {
-    input.value = "";
-    if (typeof input.setCustomValidity === "function") {
-      input.setCustomValidity("");
-    }
-  });
-}
-
-function clearElement(elements) {
-  elements.forEach(element => {
-    element.innerHTML = "";
-  });
-}
-
-function isValidEntry(entry) {
-  if (!entry) return false;
-  return (
-    (entry.type === "income" || entry.type === "expense") &&
-    typeof entry.title === "string" &&
-    entry.title.trim() !== "" &&
-    Number.isFinite(entry.amount) &&
-    entry.amount > 0
-  );
-}
-
-function normalizeEntry(entry) {
-  return {
-    type: entry.type,
-    title: entry.title.trim(),
-    amount: Number(entry.amount),
-  };
-}
-
-// ========== DOM & EVENT INITIALIZATION ==========
-
-let domEventsInitialized = false;
-function initDomAndEvents() {
-  // 每次都重置 ENTRY_LIST，防止测试污染或事件多次触发
-  ENTRY_LIST = [];
-
-  // 重置事件绑定
-  if (domEventsInitialized) return;
-  domEventsInitialized = true;
-
-  balanceEl = document.querySelector(".balance .value");
-  incomeTotalEl = document.querySelector(".income-total");
-  outcomeTotalEl = document.querySelector(".outcome-total");
-  incomeEl = document.querySelector("#income");
-  expenseEl = document.querySelector("#expense");
-  allEl = document.querySelector("#all");
-  incomeList = document.querySelector("#income .list");
-  expenseList = document.querySelector("#expense .list");
-  allList = document.querySelector("#all .list");
-
-  expenseBtn = document.querySelector(".first-tab");
-  incomeBtn = document.querySelector(".second-tab");
-  allBtn = document.querySelector(".third-tab");
-
-  addExpense = document.querySelector(".add-expense");
-  expenseTitle = document.getElementById("expense-title-input");
-  expenseAmount = document.getElementById("expense-amount-input");
-
-  addIncome = document.querySelector(".add-income");
-  incomeTitle = document.getElementById("income-title-input");
-  incomeAmount = document.getElementById("income-amount-input");
-
-  // 本地存储加载
-  // ENTRY_LIST = loadEntries(); // 测试环境可选
-
-  addExpense && addExpense.addEventListener("click", () => {
-    const expense = getValidatedEntry("expense", expenseTitle, expenseAmount);
-    if (!expense) return;
-
-    ENTRY_LIST.push(expense);
-    updateUI();
-    clearInput([expenseTitle, expenseAmount]);
-  });
-
-  addIncome && addIncome.addEventListener("click", () => {
-    const income = getValidatedEntry("income", incomeTitle, incomeAmount);
-    if (!income) return;
-
-    ENTRY_LIST.push(income);
-    updateUI();
-    clearInput([incomeTitle, incomeAmount]);
-  });
-
-  incomeList && incomeList.addEventListener("click", deleteOrEdit);
-  expenseList && expenseList.addEventListener("click", deleteOrEdit);
-  allList && allList.addEventListener("click", deleteOrEdit);
-
-  initTabSwitching();
-  initCookieBanner();
-
-  updateUI();
-}
-
-// ========== UI FUNCTIONS ==========
-
-function updateUI() {
-  income = calculateTotal("income", ENTRY_LIST);
-  outcome = calculateTotal("expense", ENTRY_LIST);
-  balance = calculateBalance(income, outcome);
-
-  const sign = balance >= 0 ? CONFIG.CURRENCY_SIGN : `-${CONFIG.CURRENCY_SIGN}`;
-
-  if (balanceEl) balanceEl.innerHTML = `<small>${sign}</small>${formatAmount(Math.abs(balance))}`;
-  if (outcomeTotalEl) outcomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${formatAmount(outcome)}`;
-  if (incomeTotalEl) incomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${formatAmount(income)}`;
-
-  if (expenseList && incomeList && allList) {
-    clearElement([expenseList, incomeList, allList]);
-    ENTRY_LIST.forEach((entry, index) => {
-      if (entry.type === "expense") {
-        showEntry(expenseList, entry.type, entry.title, entry.amount, index);
-      } else if (entry.type === "income") {
-        showEntry(incomeList, entry.type, entry.title, entry.amount, index);
-      }
-      showEntry(allList, entry.type, entry.title, entry.amount, index);
-    });
-  }
-
-  if (typeof updateChart === "function") {
-    updateChart(income, outcome);
-  }
-
-  saveEntries();
-}
-
-function showEntry(list, type, title, amount, id) {
-  if (!list) return;
-
-  const entry = document.createElement("li");
-  entry.id = id;
-  entry.className = type;
-
-  const entryText = document.createElement("div");
-  entryText.className = "entry";
-  entryText.textContent = `${title} : ${CONFIG.CURRENCY_SIGN}${formatAmount(amount)}`;
-
-  const editBtn = document.createElement("div");
-  editBtn.id = EDIT;
-  editBtn.title = "Edit entry";
-
-  const deleteBtn = document.createElement("div");
-  deleteBtn.id = DELETE;
-  deleteBtn.title = "Delete entry";
-
-  entry.append(entryText, editBtn, deleteBtn);
-  list.prepend(entry);
-}
-
-function deleteOrEdit(event) {
-  const targetBtn = event.target;
-  const entryLi = targetBtn.closest("li");
-  if (!entryLi) return;
-  if (targetBtn.id === EDIT) {
-    editEntry(entryLi);
-  } else if (targetBtn.id === DELETE) {
-    deleteEntry(entryLi);
-  }
-}
-
-function deleteEntry(entryLi) {
-  const index = Number(entryLi.id);
-  if (!Number.isInteger(index) || index < 0 || index >= ENTRY_LIST.length) {
-    console.warn("Invalid entry index for deletion:", index);
-    return;
-  }
-  ENTRY_LIST.splice(index, 1);
-  updateUI();
-}
-
-function editEntry(entryLi) {
-  const index = Number(entryLi.id);
-  if (!Number.isInteger(index) || index < 0 || index >= ENTRY_LIST.length) {
-    console.warn("Invalid entry index for editing:", index);
-    return;
-  }
-  const entry = ENTRY_LIST[index];
-  if (entry.type === "income") {
-    incomeTitle.value = entry.title;
-    incomeAmount.value = entry.amount;
-  } else if (entry.type === "expense") {
-    expenseTitle.value = entry.title;
-    expenseAmount.value = entry.amount;
-  }
-  deleteEntry(entryLi);
-}
-
-// ========== TAB SWITCHING ==========
-
-function initTabSwitching() {
-  expenseBtn && expenseBtn.addEventListener("click", () => {
-    show(expenseEl);
-    hide([incomeEl, allEl]);
-    active(expenseBtn);
-    inactive([incomeBtn, allBtn]);
-  });
-
-  incomeBtn && incomeBtn.addEventListener("click", () => {
-    show(incomeEl);
-    hide([expenseEl, allEl]);
-    active(incomeBtn);
-    inactive([expenseBtn, allBtn]);
-  });
-
-  allBtn && allBtn.addEventListener("click", () => {
-    show(allEl);
-    hide([incomeEl, expenseEl]);
-    active(allBtn);
-    inactive([incomeBtn, expenseBtn]);
-  });
-}
-
-// ========== COOKIE BANNER ==========
-
-function initCookieBanner() {
-  // 可选，测试环境可不实现
-}
-
-// ========== UI DISPLAY/HIDE AND ACTIVE STATE MANAGEMENT ==========
-
-function show(element) {
-  if (!element) return;
-  element.classList.remove("hide");
-}
-
-function hide(elements) {
-  elements.forEach(el => {
-    if (el) el.classList.add("hide");
-  });
-}
-
-function active(element) {
-  if (!element) return;
-  element.classList.add("focus");
-}
-
-function inactive(elements) {
-  elements.forEach(el => {
-    if (el) el.classList.remove("focus");
-  });
-}
-
 function loadEntries() {
   try {
     const rawEntries = localStorage.getItem(CONFIG.STORAGE_KEY);
     if (!rawEntries) return [];
+
     const parsed = JSON.parse(rawEntries);
     if (!Array.isArray(parsed)) {
       console.warn("Stored data is not an array, resetting.");
       localStorage.removeItem(CONFIG.STORAGE_KEY);
       return [];
     }
+
     return parsed.filter(isValidEntry).map(normalizeEntry);
   } catch (err) {
     console.error("Failed to load entries:", err);
@@ -323,23 +282,66 @@ function saveEntries() {
     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(ENTRY_LIST));
   } catch (err) {
     console.error("Failed to save entries:", err);
-    alert("Entry added but could not be saved due to browser storage limitations.");
+    alert(t("error.storageSave"));
   }
 }
 
-// ========== EXPORTS ==========
+function isValidEntry(entry) {
+  return (
+    entry &&
+    (entry.type === "income" || entry.type === "expense") &&
+    typeof entry.title === "string" &&
+    entry.title.trim() !== "" &&
+    Number.isFinite(Number(entry.amount)) &&
+    Number(entry.amount) > 0
+  );
+}
 
-module.exports = {
-  initDomAndEvents,
-  calculateTotal,
-  calculateBalance,
-  formatAmount,
-  getValidatedEntry,
-  clearInput,
-  clearElement,
-  isValidEntry,
-  normalizeEntry,
-  updateUI,
-  // 导出 ENTRY_LIST 方便测试直接操作
-  ENTRY_LIST,
-};
+function normalizeEntry(entry) {
+  return {
+    type: entry.type,
+    title: entry.title.trim(),
+    amount: Number(entry.amount)
+  };
+}
+
+function initCookieBanner() {
+  const cookieBanner = document.getElementById("cookie-banner");
+  const acceptBtn = document.getElementById("accept-cookie");
+  const rejectBtn = document.getElementById("reject-cookie");
+
+  if (!cookieBanner || !acceptBtn || !rejectBtn) return;
+
+  const consent = localStorage.getItem(CONFIG.COOKIE_CONSENT_KEY);
+  if (!consent) {
+    cookieBanner.classList.remove("hide");
+  } else {
+    cookieBanner.classList.add("hide");
+  }
+
+  acceptBtn.addEventListener("click", () => {
+    localStorage.setItem(CONFIG.COOKIE_CONSENT_KEY, "accepted");
+    cookieBanner.classList.add("hide");
+  });
+
+  rejectBtn.addEventListener("click", () => {
+    localStorage.setItem(CONFIG.COOKIE_CONSENT_KEY, "rejected");
+    cookieBanner.classList.add("hide");
+  });
+}
+
+function show(element) {
+  element.classList.remove("hide");
+}
+
+function hide(elements) {
+  elements.forEach(el => el.classList.add("hide"));
+}
+
+function active(element) {
+  element.classList.add("focus");
+}
+
+function inactive(elements) {
+  elements.forEach(el => el.classList.remove("focus"));
+}

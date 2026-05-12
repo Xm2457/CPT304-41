@@ -9,38 +9,59 @@
 </head>
 <body>
   <div class="budget-container">
-    <div class="app-title">
-      <a href="">Budget<b>App</b></a>
+    <div class="app-top-bar">
+      <div class="app-title">
+        <a href="">
+          <span data-i18n="app.title.prefix">Budget</span><b data-i18n="app.title.suffix">App</b>
+        </a>
+      </div>
+
+      <div class="language-switch">
+        <button
+          type="button"
+          id="lang-en"
+          data-lang="en"
+          data-i18n="language.en"
+          onclick="i18n.changeLanguage('en')"
+        >EN</button>
+        <button
+          type="button"
+          id="lang-zh"
+          data-lang="zh"
+          data-i18n="language.zh"
+          onclick="i18n.changeLanguage('zh')"
+        >中文</button>
+      </div>
     </div>
 
     <div class="budget-header">
       <div class="balance">
-        <div class="title">Balance</div>
+        <div class="title" data-i18n="summary.balance">Balance</div>
         <div class="value"><small>$</small>0</div>
       </div>
 
       <div class="account">
         <div class="income">
-          <div class="title">Income</div>
+          <div class="title" data-i18n="summary.income">Income</div>
           <div class="income-total"><small>$</small>0</div>
         </div>
 
         <div class="chart"></div>
 
         <div class="outcome">
-          <div class="title">Outcome</div>
+          <div class="title" data-i18n="summary.outcome">Outcome</div>
           <div class="outcome-total"><small>$</small>0</div>
         </div>
       </div>
     </div>
 
     <div class="budget-dashboard">
-      <div class="dash-title">Dashboard</div>
+      <div class="dash-title" data-i18n="dashboard.title">Dashboard</div>
 
       <div class="toggle">
-        <div class="first-tab">Expenses</div>
-        <div class="second-tab">Income</div>
-        <div class="third-tab focus">All</div>
+        <div class="first-tab" data-i18n="tabs.expenses">Expenses</div>
+        <div class="second-tab" data-i18n="tabs.income">Income</div>
+        <div class="third-tab focus" data-i18n="tabs.all">All</div>
       </div>
 
       <div class="hide" id="expense">
@@ -51,6 +72,7 @@
             id="expense-title-input"
             name="title"
             placeholder="title"
+            data-i18n-placeholder="input.titlePlaceholder"
             required
           />
           <input
@@ -58,11 +80,14 @@
             id="expense-amount-input"
             name="amount"
             placeholder="$0"
+            data-i18n-placeholder="input.amountPlaceholder"
             min="0.01"
             step="0.01"
             required
           />
-          <div class="add-expense"><img src="icon/plus.png" alt="Add Expense" /></div>
+          <div class="add-expense" data-i18n-title="button.addExpense">
+            <img src="icon/plus.png" alt="Add Expense" data-i18n-alt="button.addExpense" />
+          </div>
         </div>
       </div>
 
@@ -74,6 +99,7 @@
             id="income-title-input"
             name="title"
             placeholder="title"
+            data-i18n-placeholder="input.titlePlaceholder"
             required
           />
           <input
@@ -81,11 +107,14 @@
             id="income-amount-input"
             name="amount"
             placeholder="$0"
+            data-i18n-placeholder="input.amountPlaceholder"
             min="0.01"
             step="0.01"
             required
           />
-          <div class="add-income"><img src="icon/plus.png" alt="Add Income" /></div>
+          <div class="add-income" data-i18n-title="button.addIncome">
+            <img src="icon/plus.png" alt="Add Income" data-i18n-alt="button.addIncome" />
+          </div>
         </div>
       </div>
 
@@ -95,21 +124,21 @@
     </div>
   </div>
 
-  <!-- Cookie Banner -->
   <div id="cookie-banner" class="cookie-banner hide">
     <p>
-      We use local storage to save your budget data and preferences. By clicking
-      <strong>"Accept All"</strong>, you consent to our use of essential storage.
-      Read our <a href="privacy.html" target="_blank">Privacy Policy</a>.
+      <span data-i18n="cookie.message.start">We use local storage to save your budget data and preferences. By clicking</span>
+      <strong data-i18n="cookie.message.accept">Accept All</strong>,
+      <span data-i18n="cookie.message.end">you consent to our use of essential storage. Read our</span>
+      <a href="privacy.html" target="_blank" data-i18n="cookie.privacy">Privacy Policy</a>.
     </p>
     <div class="cookie-buttons">
-      <button id="reject-cookie">Reject</button>
-      <button id="accept-cookie" class="accept-btn">Accept All</button>
+      <button id="reject-cookie" data-i18n="cookie.reject">Reject</button>
+      <button id="accept-cookie" class="accept-btn" data-i18n="cookie.accept">Accept All</button>
     </div>
   </div>
 
-  <!-- Dependency loading order -->
   <script src="config.js"></script>
+  <script src="i18n.js"></script>
   <script src="chart.js"></script>
   <script src="budget.js"></script>
 </body>
