@@ -1,5 +1,5 @@
-[![Run Tests and Coverage](https://github.com/Xm2457/CPT304-41/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/Xm2457/CPT304-41/actions/workflows/test-and-coverage.yml)
-[![codecov](https://codecov.io/github/Xm2457/CPT304-41/graph/badge.svg?token=S1WP0MY0KE)](https://codecov.io/github/Xm2457/CPT304-41)
+<!-- [![Run Tests and Coverage](https://github.com/Xm2457/CPT304-41/actions/workflows/test-and-coverage.yml/badge.svg)](https://github.com/Xm2457/CPT304-41/actions/workflows/test-and-coverage.yml)
+[![codecov](https://codecov.io/github/Xm2457/CPT304-41/graph/badge.svg?token=S1WP0MY0KE)](https://codecov.io/github/Xm2457/CPT304-41) -->
 
 # Budget-App-JavaScript
 
