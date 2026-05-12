@@ -1,6 +1,6 @@
 // budget.js
-// Depends on CONFIG from config.js and t()/i18n/initI18n() from i18n.js.
-// Please ensure config.js and i18n.js are loaded before this file.
+// Depends on the CONFIG configuration object from config.js
+// Please ensure config.js is correctly imported and loaded before budget.js
 
 // =========================
 // SELECT ELEMENTS
@@ -39,26 +39,22 @@ const EDIT = "edit";
 // VARIABLES
 // =========================
 let ENTRY_LIST = loadEntries();
-let balance = 0;
-let income = 0;
-let outcome = 0;
+let balance = 0,
+  income = 0,
+  outcome = 0;
 
 // =========================
 // INITIALIZATION
 // =========================
-initI18n();
 updateUI();
 initCookieBanner();
 initTabSwitching();
-
-window.addEventListener("languagechange", () => {
-  updateUI();
-});
 
 // =========================
 // EVENT LISTENERS
 // =========================
 
+// Add expense entry
 addExpense.addEventListener("click", () => {
   const expense = getValidatedEntry("expense", expenseTitle, expenseAmount);
   if (!expense) return;
@@ -68,6 +64,7 @@ addExpense.addEventListener("click", () => {
   clearInput([expenseTitle, expenseAmount]);
 });
 
+// Add income entry
 addIncome.addEventListener("click", () => {
   const income = getValidatedEntry("income", incomeTitle, incomeAmount);
   if (!income) return;
@@ -77,6 +74,7 @@ addIncome.addEventListener("click", () => {
   clearInput([incomeTitle, incomeAmount]);
 });
 
+// Delete or edit event binding (event delegation)
 incomeList.addEventListener("click", deleteOrEdit);
 expenseList.addEventListener("click", deleteOrEdit);
 allList.addEventListener("click", deleteOrEdit);
@@ -85,6 +83,7 @@ allList.addEventListener("click", deleteOrEdit);
 // FUNCTION DEFINITIONS
 // =========================
 
+// Initialize tab switching
 function initTabSwitching() {
   expenseBtn.addEventListener("click", () => {
     show(expenseEl);
@@ -108,6 +107,7 @@ function initTabSwitching() {
   });
 }
 
+// Delete or edit handler
 function deleteOrEdit(event) {
   const targetBtn = event.target;
   const entryLi = targetBtn.closest("li");
@@ -121,6 +121,7 @@ function deleteOrEdit(event) {
   }
 }
 
+// Delete entry
 function deleteEntry(entryLi) {
   const index = Number(entryLi.id);
 
@@ -133,6 +134,7 @@ function deleteEntry(entryLi) {
   updateUI();
 }
 
+// Edit entry
 function editEntry(entryLi) {
   const index = Number(entryLi.id);
 
@@ -142,7 +144,6 @@ function editEntry(entryLi) {
   }
 
   const entry = ENTRY_LIST[index];
-
   if (entry.type === "income") {
     incomeTitle.value = entry.title;
     incomeAmount.value = entry.amount;
@@ -154,6 +155,7 @@ function editEntry(entryLi) {
   deleteEntry(entryLi);
 }
 
+// Update UI
 function updateUI() {
   income = calculateTotal("income", ENTRY_LIST);
   outcome = calculateTotal("expense", ENTRY_LIST);
@@ -173,7 +175,6 @@ function updateUI() {
     } else if (entry.type === "income") {
       showEntry(incomeList, entry.type, entry.title, entry.amount, index);
     }
-
     showEntry(allList, entry.type, entry.title, entry.amount, index);
   });
 
@@ -184,6 +185,7 @@ function updateUI() {
   saveEntries();
 }
 
+// Display a single entry
 function showEntry(list, type, title, amount, id) {
   const entry = document.createElement("li");
   entry.id = id;
@@ -195,43 +197,46 @@ function showEntry(list, type, title, amount, id) {
 
   const editBtn = document.createElement("div");
   editBtn.id = EDIT;
-  editBtn.title = t("entry.edit");
+  editBtn.title = "Edit entry";
 
   const deleteBtn = document.createElement("div");
   deleteBtn.id = DELETE;
-  deleteBtn.title = t("entry.delete");
+  deleteBtn.title = "Delete entry";
 
   entry.append(entryText, editBtn, deleteBtn);
   list.prepend(entry);
 }
 
+// Validate input and return entry object or null
 function getValidatedEntry(type, titleInput, amountInput) {
   const title = titleInput.value.trim();
   const amount = Number(amountInput.value);
 
   if (title.length < 2 || title.length > 50) {
-    alert(t("error.titleLength"));
+    alert("Title must be between 2 and 50 characters.");
     return null;
   }
 
+  // Dangerous character detection to prevent XSS
   const dangerousPattern = /<script|<\/script>|<.*?>/gi;
   if (dangerousPattern.test(title)) {
-    alert(t("error.invalidTitle"));
+    alert("Invalid characters detected in title.");
     return null;
   }
 
   if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
-    alert(t("error.amountRange"));
+    alert("Please enter a valid amount between 0 and 1,000,000.");
     return null;
   }
 
   return {
     type,
     title,
-    amount
+    amount,
   };
 }
 
+// Clear input fields and reset validation state
 function clearInput(inputs) {
   inputs.forEach(input => {
     input.value = "";
@@ -239,24 +244,29 @@ function clearInput(inputs) {
   });
 }
 
+// Clear content of multiple elements
 function clearElement(elements) {
   elements.forEach(element => {
     element.innerHTML = "";
   });
 }
 
+// Calculate total amount by type
 function calculateTotal(type, list) {
   return list.reduce((sum, entry) => (entry.type === type ? sum + entry.amount : sum), 0);
 }
 
+// Calculate balance
 function calculateBalance(income, outcome) {
   return income - outcome;
 }
 
+// Format amount to two decimal places
 function formatAmount(amount) {
-  return Number(amount).toFixed(2);
+  return amount.toFixed(2);
 }
 
+// Load from localStorage with error handling and data validation
 function loadEntries() {
   try {
     const rawEntries = localStorage.getItem(CONFIG.STORAGE_KEY);
@@ -277,71 +287,79 @@ function loadEntries() {
   }
 }
 
+// Save to localStorage with error handling
 function saveEntries() {
   try {
     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(ENTRY_LIST));
   } catch (err) {
     console.error("Failed to save entries:", err);
-    alert(t("error.storageSave"));
+    alert("Entry added but could not be saved due to browser storage limitations.");
   }
 }
 
+// Validate entry legitimacy
 function isValidEntry(entry) {
   return (
     entry &&
     (entry.type === "income" || entry.type === "expense") &&
     typeof entry.title === "string" &&
     entry.title.trim() !== "" &&
-    Number.isFinite(Number(entry.amount)) &&
-    Number(entry.amount) > 0
+    Number.isFinite(entry.amount) &&
+    entry.amount > 0
   );
 }
 
+// Clean up entry data format
 function normalizeEntry(entry) {
   return {
     type: entry.type,
     title: entry.title.trim(),
-    amount: Number(entry.amount)
+    amount: Number(entry.amount),
   };
 }
 
+// =========================
+// COOKIE BANNER RELATED LOGIC
+// =========================
 function initCookieBanner() {
-  const cookieBanner = document.getElementById("cookie-banner");
-  const acceptBtn = document.getElementById("accept-cookie");
-  const rejectBtn = document.getElementById("reject-cookie");
+  document.addEventListener("DOMContentLoaded", () => {
+    const cookieBanner = document.getElementById("cookie-banner");
+    const acceptBtn = document.getElementById("accept-cookie");
+    const rejectBtn = document.getElementById("reject-cookie");
 
-  if (!cookieBanner || !acceptBtn || !rejectBtn) return;
+    if (!cookieBanner || !acceptBtn || !rejectBtn) return;
 
-  const consent = localStorage.getItem(CONFIG.COOKIE_CONSENT_KEY);
-  if (!consent) {
-    cookieBanner.classList.remove("hide");
-  } else {
-    cookieBanner.classList.add("hide");
-  }
+    const consent = localStorage.getItem("cookieConsent");
+    if (!consent) {
+      cookieBanner.classList.remove("hide");
+    } else {
+      cookieBanner.classList.add("hide");
+    }
 
-  acceptBtn.addEventListener("click", () => {
-    localStorage.setItem(CONFIG.COOKIE_CONSENT_KEY, "accepted");
-    cookieBanner.classList.add("hide");
-  });
+    acceptBtn.addEventListener("click", () => {
+      localStorage.setItem("cookieConsent", "accepted");
+      cookieBanner.classList.add("hide");
+    });
 
-  rejectBtn.addEventListener("click", () => {
-    localStorage.setItem(CONFIG.COOKIE_CONSENT_KEY, "rejected");
-    cookieBanner.classList.add("hide");
+    rejectBtn.addEventListener("click", () => {
+      localStorage.setItem("cookieConsent", "rejected");
+      cookieBanner.classList.add("hide");
+    });
   });
 }
 
+// =========================
+// UI DISPLAY/HIDE AND ACTIVE STATE MANAGEMENT
+// =========================
 function show(element) {
   element.classList.remove("hide");
 }
-
 function hide(elements) {
   elements.forEach(el => el.classList.add("hide"));
 }
-
 function active(element) {
   element.classList.add("focus");
 }
-
 function inactive(elements) {
   elements.forEach(el => el.classList.remove("focus"));
 }
