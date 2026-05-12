@@ -13,5 +13,3 @@ const CONFIG = {
     LINE_WIDTH: 8
   }
 };
-
-module.exports = CONFIG; 

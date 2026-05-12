@@ -1,5 +1,17 @@
-// budget.js
-const CONFIG = require('./config.js');
+const CONFIG = {
+  STORAGE_KEY: "entry_list",
+  CURRENCY_SIGN: "$",
+  COLORS: {
+    income: "#FFFFFF",
+    expense: "#F0624D"
+  },
+  CHART: {
+    WIDTH: 50,
+    HEIGHT: 50,
+    RADIUS: 20,
+    LINE_WIDTH: 8
+  }
+};
 
 let balanceEl, incomeTotalEl, outcomeTotalEl;
 let incomeEl, expenseEl, allEl;
@@ -269,7 +281,30 @@ function initTabSwitching() {
 // ========== COOKIE BANNER ==========
 
 function initCookieBanner() {
-  // 可选，测试环境可不实现
+  document.addEventListener("DOMContentLoaded", () => {
+    const cookieBanner = document.getElementById("cookie-banner");
+    const acceptBtn = document.getElementById("accept-cookie");
+    const rejectBtn = document.getElementById("reject-cookie");
+
+    if (!cookieBanner || !acceptBtn || !rejectBtn) return;
+
+    const consent = localStorage.getItem("cookieConsent");
+    if (!consent) {
+      cookieBanner.classList.remove("hide");
+    } else {
+      cookieBanner.classList.add("hide");
+    }
+
+    acceptBtn.addEventListener("click", () => {
+      localStorage.setItem("cookieConsent", "accepted");
+      cookieBanner.classList.add("hide");
+    });
+
+    rejectBtn.addEventListener("click", () => {
+      localStorage.setItem("cookieConsent", "rejected");
+      cookieBanner.classList.add("hide");
+    });
+  });
 }
 
 // ========== UI DISPLAY/HIDE AND ACTIVE STATE MANAGEMENT ==========
@@ -322,8 +357,6 @@ function saveEntries() {
     alert("Entry added but could not be saved due to browser storage limitations.");
   }
 }
-
-// ========== EXPORTS ==========
 
 module.exports = {
   initDomAndEvents,
