@@ -1,3 +1,4 @@
+// chart.js
 const CONFIG = require('./config.js');
 
 const chartEl = document.querySelector(".chart");

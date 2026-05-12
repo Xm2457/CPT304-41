@@ -1,4 +1,5 @@
 // budget.js
+const CONFIG = require('./config.js');
 
 let balanceEl, incomeTotalEl, outcomeTotalEl;
 let incomeEl, expenseEl, allEl;
@@ -92,10 +93,6 @@ function normalizeEntry(entry) {
 
 let domEventsInitialized = false;
 function initDomAndEvents() {
-  // 每次都重置 ENTRY_LIST，防止测试污染或事件多次触发
-  ENTRY_LIST = [];
-
-  // 重置事件绑定
   if (domEventsInitialized) return;
   domEventsInitialized = true;
 
@@ -121,8 +118,7 @@ function initDomAndEvents() {
   incomeTitle = document.getElementById("income-title-input");
   incomeAmount = document.getElementById("income-amount-input");
 
-  // 本地存储加载
-  // ENTRY_LIST = loadEntries(); // 测试环境可选
+  ENTRY_LIST = loadEntries();
 
   addExpense && addExpense.addEventListener("click", () => {
     const expense = getValidatedEntry("expense", expenseTitle, expenseAmount);
