@@ -2,6 +2,29 @@
  * @jest-environment jsdom
  */
 
+beforeEach(() => {
+  document.body.innerHTML = `
+    <div class="balance"><div class="value"></div></div>
+    <div class="income-total"></div>
+    <div class="outcome-total"></div>
+    <div id="income"><ul class="list"></ul></div>
+    <div id="expense"><ul class="list"></ul></div>
+    <div id="all"><ul class="list"></ul></div>
+    <button class="first-tab"></button>
+    <button class="second-tab"></button>
+    <button class="third-tab"></button>
+    <button class="add-expense"></button>
+    <input id="expense-title-input" />
+    <input id="expense-amount-input" />
+    <button class="add-income"></button>
+    <input id="income-title-input" />
+    <input id="income-amount-input" />
+    <div id="cookie-banner" class="hide"></div>
+    <button id="accept-cookie"></button>
+    <button id="reject-cookie"></button>
+  `;
+});
+
 const {
   initDomAndEvents,
   calculateTotal,
