@@ -1,10 +1,12 @@
+<<<<<<< HEAD
 // budget.js
 // Depends on CONFIG from config.js and t()/i18n/initI18n() from i18n.js.
 // Please ensure config.js and i18n.js are loaded before this file.
 
 // =========================
+=======
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 // SELECT ELEMENTS
-// =========================
 const balanceEl = document.querySelector(".balance .value");
 const incomeTotalEl = document.querySelector(".income-total");
 const outcomeTotalEl = document.querySelector(".outcome-total");
@@ -29,37 +31,59 @@ const addIncome = document.querySelector(".add-income");
 const incomeTitle = document.getElementById("income-title-input");
 const incomeAmount = document.getElementById("income-amount-input");
 
-// =========================
-// CONSTANTS
-// =========================
-const DELETE = "delete";
-const EDIT = "edit";
-
-// =========================
 // VARIABLES
-// =========================
 let ENTRY_LIST = loadEntries();
 let balance = 0;
 let income = 0;
 let outcome = 0;
 
+<<<<<<< HEAD
 // =========================
 // INITIALIZATION
 // =========================
 initI18n();
-updateUI();
-initCookieBanner();
-initTabSwitching();
+=======
+const DELETE = "delete",
+  EDIT = "edit";
 
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
+updateUI();
+
+<<<<<<< HEAD
 window.addEventListener("languagechange", () => {
   updateUI();
 });
 
 // =========================
+=======
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 // EVENT LISTENERS
-// =========================
+expenseBtn.addEventListener("click", function () {
+  show(expenseEl);
+  hide([incomeEl, allEl]);
+  active(expenseBtn);
+  inactive([incomeBtn, allBtn]);
+});
 
+<<<<<<< HEAD
 addExpense.addEventListener("click", () => {
+=======
+incomeBtn.addEventListener("click", function () {
+  show(incomeEl);
+  hide([expenseEl, allEl]);
+  active(incomeBtn);
+  inactive([expenseBtn, allBtn]);
+});
+
+allBtn.addEventListener("click", function () {
+  show(allEl);
+  hide([incomeEl, expenseEl]);
+  active(allBtn);
+  inactive([incomeBtn, expenseBtn]);
+});
+
+addExpense.addEventListener("click", function () {
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   const expense = getValidatedEntry("expense", expenseTitle, expenseAmount);
   if (!expense) return;
 
@@ -68,7 +92,11 @@ addExpense.addEventListener("click", () => {
   clearInput([expenseTitle, expenseAmount]);
 });
 
+<<<<<<< HEAD
 addIncome.addEventListener("click", () => {
+=======
+addIncome.addEventListener("click", function () {
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   const income = getValidatedEntry("income", incomeTitle, incomeAmount);
   if (!income) return;
 
@@ -81,6 +109,7 @@ incomeList.addEventListener("click", deleteOrEdit);
 expenseList.addEventListener("click", deleteOrEdit);
 allList.addEventListener("click", deleteOrEdit);
 
+<<<<<<< HEAD
 // =========================
 // FUNCTION DEFINITIONS
 // =========================
@@ -108,24 +137,32 @@ function initTabSwitching() {
   });
 }
 
+=======
+// HELPER FUNCTIONS
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 function deleteOrEdit(event) {
   const targetBtn = event.target;
-  const entryLi = targetBtn.closest("li");
+  const entry = targetBtn.closest("li");
 
-  if (!entryLi) return;
+  if (!entry) return;
 
   if (targetBtn.id === EDIT) {
-    editEntry(entryLi);
+    editEntry(entry);
   } else if (targetBtn.id === DELETE) {
-    deleteEntry(entryLi);
+    deleteEntry(entry);
   }
 }
 
+<<<<<<< HEAD
 function deleteEntry(entryLi) {
   const index = Number(entryLi.id);
+=======
+function deleteEntry(entry) {
+  const index = Number(entry.id);
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 
   if (!Number.isInteger(index) || index < 0 || index >= ENTRY_LIST.length) {
-    console.warn("Invalid entry index for deletion:", index);
+    console.warn("Invalid entry index:", entry.id);
     return;
   }
 
@@ -133,14 +170,21 @@ function deleteEntry(entryLi) {
   updateUI();
 }
 
+<<<<<<< HEAD
 function editEntry(entryLi) {
   const index = Number(entryLi.id);
+=======
+function editEntry(entry) {
+  const index = Number(entry.id);
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 
+  // Prevent editing non-existent data
   if (!Number.isInteger(index) || index < 0 || index >= ENTRY_LIST.length) {
-    console.warn("Invalid entry index for editing:", index);
+    console.warn("Invalid entry index:", entry.id);
     return;
   }
 
+<<<<<<< HEAD
   const entry = ENTRY_LIST[index];
 
   if (entry.type === "income") {
@@ -149,19 +193,30 @@ function editEntry(entryLi) {
   } else if (entry.type === "expense") {
     expenseTitle.value = entry.title;
     expenseAmount.value = entry.amount;
+=======
+  const ENTRY = ENTRY_LIST[index];
+
+  if (ENTRY.type === "income") {
+    incomeTitle.value = ENTRY.title;
+    incomeAmount.value = ENTRY.amount;
+  } else if (ENTRY.type === "expense") {
+    expenseTitle.value = ENTRY.title;
+    expenseAmount.value = ENTRY.amount;
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   }
 
-  deleteEntry(entryLi);
+  deleteEntry(entry);
 }
 
 function updateUI() {
   income = calculateTotal("income", ENTRY_LIST);
   outcome = calculateTotal("expense", ENTRY_LIST);
-  balance = calculateBalance(income, outcome);
+  balance = Math.abs(calculateBalance(income, outcome));
 
-  const sign = balance >= 0 ? CONFIG.CURRENCY_SIGN : `-${CONFIG.CURRENCY_SIGN}`;
+  const sign = income >= outcome ? CONFIG.CURRENCY_SIGN : `-${CONFIG.CURRENCY_SIGN}`;
 
-  balanceEl.innerHTML = `<small>${sign}</small>${formatAmount(Math.abs(balance))}`;
+  // UPDATE UI
+  balanceEl.innerHTML = `<small>${sign}</small>${formatAmount(balance)}`;
   outcomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${formatAmount(outcome)}`;
   incomeTotalEl.innerHTML = `<small>${CONFIG.CURRENCY_SIGN}</small>${formatAmount(income)}`;
 
@@ -177,6 +232,7 @@ function updateUI() {
     showEntry(allList, entry.type, entry.title, entry.amount, index);
   });
 
+  // Prevent the entire page from reporting an error when chart.js is not loaded correctly
   if (typeof updateChart === "function") {
     updateChart(income, outcome);
   }
@@ -191,15 +247,23 @@ function showEntry(list, type, title, amount, id) {
 
   const entryText = document.createElement("div");
   entryText.className = "entry";
+
+  // Use textContent to avoid the risk of page injection caused by users entering HTML/ scripts
   entryText.textContent = `${title} : ${CONFIG.CURRENCY_SIGN}${formatAmount(amount)}`;
 
   const editBtn = document.createElement("div");
   editBtn.id = EDIT;
+<<<<<<< HEAD
   editBtn.title = t("entry.edit");
 
   const deleteBtn = document.createElement("div");
   deleteBtn.id = DELETE;
   deleteBtn.title = t("entry.delete");
+=======
+
+  const deleteBtn = document.createElement("div");
+  deleteBtn.id = DELETE;
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 
   entry.append(entryText, editBtn, deleteBtn);
   list.prepend(entry);
@@ -209,6 +273,7 @@ function getValidatedEntry(type, titleInput, amountInput) {
   const title = titleInput.value.trim();
   const amount = Number(amountInput.value);
 
+<<<<<<< HEAD
   if (title.length < 2 || title.length > 50) {
     alert(t("error.titleLength"));
     return null;
@@ -222,6 +287,17 @@ function getValidatedEntry(type, titleInput, amountInput) {
 
   if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000) {
     alert(t("error.amountRange"));
+=======
+  // The title cannot be empty, nor can only Spaces be entered
+  if (!title) {
+    setInputError(titleInput, "Please enter a title.");
+    return null;
+  }
+
+  // The amount must be a significant figure and greater than 0
+  if (!Number.isFinite(amount) || amount <= 0) {
+    setInputError(amountInput, "Please enter an amount greater than 0.");
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
     return null;
   }
 
@@ -232,6 +308,7 @@ function getValidatedEntry(type, titleInput, amountInput) {
   };
 }
 
+<<<<<<< HEAD
 function clearInput(inputs) {
   inputs.forEach(input => {
     input.value = "";
@@ -257,21 +334,42 @@ function formatAmount(amount) {
   return Number(amount).toFixed(2);
 }
 
+=======
+function setInputError(input, message) {
+  input.setCustomValidity(message);
+  input.reportValidity();
+
+  // After the user re-enters, clear the previous error status
+  input.addEventListener(
+    "input",
+    function () {
+      input.setCustomValidity("");
+    },
+    { once: true }
+  );
+}
+
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 function loadEntries() {
   try {
     const rawEntries = localStorage.getItem(CONFIG.STORAGE_KEY);
+
     if (!rawEntries) return [];
 
-    const parsed = JSON.parse(rawEntries);
-    if (!Array.isArray(parsed)) {
-      console.warn("Stored data is not an array, resetting.");
+    const parsedEntries = JSON.parse(rawEntries);
+
+    // Prevent the data in localStorage from not being an array
+    if (!Array.isArray(parsedEntries)) {
+      console.warn("Saved entries are not an array. Resetting data.");
       localStorage.removeItem(CONFIG.STORAGE_KEY);
       return [];
     }
 
-    return parsed.filter(isValidEntry).map(normalizeEntry);
-  } catch (err) {
-    console.error("Failed to load entries:", err);
+  
+    return parsedEntries.filter(isValidEntry).map(normalizeEntry);
+  } catch (error) {
+    // Prevent JSON corruption from causing page initialization failure
+    console.error("Failed to load saved entries:", error);
     localStorage.removeItem(CONFIG.STORAGE_KEY);
     return [];
   }
@@ -280,9 +378,16 @@ function loadEntries() {
 function saveEntries() {
   try {
     localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(ENTRY_LIST));
+<<<<<<< HEAD
   } catch (err) {
     console.error("Failed to save entries:", err);
     alert(t("error.storageSave"));
+=======
+  } catch (error) {
+    // localStorage The write may fail due to reasons such as the browser's privacy mode or capacity limit
+    console.error("Failed to save entries:", error);
+    alert("The entry was added, but it could not be saved in this browser.");
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   }
 }
 
@@ -305,6 +410,7 @@ function normalizeEntry(entry) {
   };
 }
 
+<<<<<<< HEAD
 function initCookieBanner() {
   const cookieBanner = document.getElementById("cookie-banner");
   const acceptBtn = document.getElementById("accept-cookie");
@@ -327,6 +433,38 @@ function initCookieBanner() {
   rejectBtn.addEventListener("click", () => {
     localStorage.setItem(CONFIG.COOKIE_CONSENT_KEY, "rejected");
     cookieBanner.classList.add("hide");
+=======
+function formatAmount(amount) {
+  return Number(amount).toFixed(2);
+}
+
+function clearElement(elements) {
+  elements.forEach((element) => {
+    element.innerHTML = "";
+  });
+}
+
+function calculateTotal(type, list) {
+  let sum = 0;
+
+  list.forEach((entry) => {
+    if (entry.type === type) {
+      sum += entry.amount;
+    }
+  });
+
+  return sum;
+}
+
+function calculateBalance(income, outcome) {
+  return income - outcome;
+}
+
+function clearInput(inputs) {
+  inputs.forEach((input) => {
+    input.value = "";
+    input.setCustomValidity("");
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   });
 }
 
@@ -335,7 +473,9 @@ function show(element) {
 }
 
 function hide(elements) {
-  elements.forEach(el => el.classList.add("hide"));
+  elements.forEach((element) => {
+    element.classList.add("hide");
+  });
 }
 
 function active(element) {
@@ -343,5 +483,7 @@ function active(element) {
 }
 
 function inactive(elements) {
-  elements.forEach(el => el.classList.remove("focus"));
+  elements.forEach((element) => {
+    element.classList.remove("focus");
+  });
 }

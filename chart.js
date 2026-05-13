@@ -1,6 +1,12 @@
 // chart.js
+<<<<<<< HEAD
 // Balancing robustness and functionality
 
+=======
+// Error Handling Prevent editing non-existent data
+
+// SELECT CHART ELEMENT
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
 const chartEl = document.querySelector(".chart");
 
 let canvas = null;
@@ -8,22 +14,31 @@ let ctx = null;
 let R = 0;
 
 if (chartEl && typeof CONFIG !== "undefined" && CONFIG.CHART) {
+<<<<<<< HEAD
+=======
+  // CREATE CANVAS ELEMENT
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   canvas = document.createElement("canvas");
   canvas.width = CONFIG.CHART.WIDTH;
   canvas.height = CONFIG.CHART.HEIGHT;
 
   chartEl.appendChild(canvas);
 
+<<<<<<< HEAD
+=======
+  // TO DRAW ON CANVAS, WE NEED TO GET CONTEXT OF CANVAS
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   ctx = canvas.getContext("2d");
 
   if (ctx) {
+    // CHANGE LINE WIDTH
     ctx.lineWidth = CONFIG.CHART.LINE_WIDTH;
+
+    // CIRCLE RADIUS
     R = CONFIG.CHART.RADIUS;
-  } else {
-    console.warn("Failed to get 2D context for canvas.");
   }
 } else {
-  console.warn("Chart container or CONFIG.CHART not found.");
+  console.warn("Chart container or chart config was not found.");
 }
 
 function drawCircle(color, ratio, anticlockwise) {
@@ -51,6 +66,10 @@ function updateChart(income, outcome) {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5187aa4e57b4d5f53fdb19fb759ee9ae8705e7e6
   const ratio = total > 0 ? safeIncome / total : 0;
 
   drawCircle(CONFIG.COLORS.income, -ratio, true);
