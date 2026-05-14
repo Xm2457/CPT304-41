@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1778731599555" clover="3.2.0">
-  <project timestamp="1778731599555" name="All files">
+<coverage generated="1778733899913" clover="3.2.0">
+  <project timestamp="1778733899913" name="All files">
     <metrics statements="324" coveredstatements="318" conditionals="182" coveredconditionals="155" methods="73" coveredmethods="72" elements="579" coveredelements="545" complexity="0" loc="324" ncloc="324" packages="1" files="4" classes="4"/>
     <file name="budget.js" path="/workspaces/CPT304-41/budget.js">
       <metrics statements="221" coveredstatements="217" conditionals="119" coveredconditionals="101" methods="49" coveredmethods="48"/>
