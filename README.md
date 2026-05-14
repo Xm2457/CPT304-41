@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/github/Xm2457/CPT304-41/graph/badge.svg?token=S1WP0MY0KE)](https://codecov.io/github/Xm2457/CPT304-41)
+[![CI](https://github.com/Xm2457/CPT304-41/actions/workflows/ci.yml/badge.svg)](https://github.com/Xm2457/CPT304-41/actions/workflows/ci.yml)
 
 # Budget-App-JavaScript
 
