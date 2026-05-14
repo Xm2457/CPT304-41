@@ -1,5 +1,6 @@
 // config.js
 // Centralized configuration management
+
 const CONFIG = {
   STORAGE_KEY: "entry_list",
   LANGUAGE_KEY: "budget_app_language",
@@ -16,3 +17,13 @@ const CONFIG = {
     LINE_WIDTH: 8
   }
 };
+
+/* istanbul ignore next */
+if (typeof globalThis !== "undefined") {
+  globalThis.CONFIG = CONFIG;
+}
+
+/* istanbul ignore next */
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = CONFIG;
+}
